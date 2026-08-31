@@ -25,19 +25,19 @@ public class Main {
         System.out.print("what is your name you suckler: ");
         String playerName = in.nextLine().trim();
 
-        System.out.print("Difficulty (1 = baby mode, 2 = average, 3 = morale destroying): ");
-
         int difficulty = in.nextInt();
+        do {
+            System.out.print("Difficulty (1 = baby mode, 2 = average, 3 = soul consuming");
+            while (!in.hasNextInt()) {
+                System.out.print("numbers only, or else:");
+                in.next();
+            }
+            difficulty = in.nextInt();
+        } while (difficulty < 1 || difficulty > 3);
         in.nextLine(); // consume the leftover newline. Delete this line and
                        // the "Press Enter" prompt below flies straight past.
 
         //
-        String difficultyName = switch (difficulty) {
-            case 1 -> "baby mode";
-            default -> "average";
-            case 3 -> "morale destroying";
-
-        };
 
         int health = MAX_HEALTH;
         int gold = STARTING_GOLD;
@@ -100,6 +100,21 @@ public class Main {
         System.out.println("Turn " + turn + " — enrages: " + enrages);
         System.out.println("");
 
+        int turnNumber = 1;
+boolean playing = true;
+
+while (playing) {
+    // status, menu, switch, enemy answers, end checks
+    turnNumber++;
+}
+
+
+    int roll = (turnNumber * 3) % 10 + 1;
+if (alive && enemyHealth > 0) {
+    health -= enemyPower;
+    System.out.printf("The %s strikes back for %d.%n", enemyName, enemyPower);
+}
+
         double critDamage = damage * 1.75;
         int applied = (int) critDamage;
         System.out.println("Crit damage (double): " + critDamage);
@@ -128,7 +143,7 @@ public class Main {
             case "F" -> System.out.println("Yes, Run. That is the most sensible action.");
         }
 
-        int roll = 7; // hard-coded on purpose; L12 makes it random
+
         int damage2;
         int potions = 2;
 

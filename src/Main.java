@@ -25,8 +25,19 @@ public class Main {
         System.out.print("what is your name you suckler: ");
         String playerName = in.nextLine().trim();
 
+        System.out.print("Difficulty (1 = baby mode, 2 = average, 3 = morale destroying): ");
+
         int difficulty = in.nextInt();
-        in.nextLine();
+        in.nextLine(); // consume the leftover newline. Delete this line and
+                       // the "Press Enter" prompt below flies straight past.
+
+        //
+        String difficultyName = switch (difficulty) {
+            case 1 -> "baby mode";
+            default -> "average";
+            case 3 -> "morale destroying";
+
+        };
 
         int health = MAX_HEALTH;
         int gold = STARTING_GOLD;
@@ -107,8 +118,24 @@ public class Main {
         // SET enemy health based on answer
         // SHOW a summary and wait for enter
 
+        System.out.print("[A]ttack  [D]efend  [P]otion  [F]lee: ");
+        String action = in.nextLine().trim().toUpperCase();
+
+        switch (action) {
+            case "A" -> System.out.println("You attack. Slowly but surely.");
+            case "D" -> System.out.println(" You defended you and your party. How noble. ");
+            case "P" -> System.out.println("You started.. praying? Yes, BE A BELIEVER!");
+            case "F" -> System.out.println("Yes, Run. That is the most sensible action.");
+        }
+
         int roll = 7; // hard-coded on purpose; L12 makes it random
         int damage2;
+        int potions = 2;
+
+        System.out.printf("You have %d %s left.%n", potions,
+                potions == 1 ? "potion" : "potions");
+
+        String condition = health > MAX_HEALTH / 2 ? "healthy" : "barely holding on";
 
         if (roll >= 9) {
             damage2 = enemyPower * 2;

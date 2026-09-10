@@ -197,11 +197,11 @@ public class Main {
         int enemyPower = 4 + difficulty * 3;
 
         System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n",
-                          playerName, health, MAX_HEALTH, STARTING_GOLD, 1);
+                playerName, health, MAX_HEALTH, STARTING_GOLD, 1);
         System.out.println("");
 
         System.out.printf("%s enters the arena. The %s has %d HP.%n",
-                          playerName, enemyName, enemyHealth);
+                playerName, enemyName, enemyHealth);
         System.out.print("Press Enter to begin...");
         in.nextLine();
         System.out.println("");
@@ -220,16 +220,21 @@ public class Main {
             System.out.println("=".repeat(40));
             System.out.printf("  Turn %d%n", turnNumber);
             System.out.printf("%-12s HP %3d/%3d    %-14s HP %3d%n",
-                              playerName, health, MAX_HEALTH, enemyName, enemyHealth);
+                    playerName, health, MAX_HEALTH, enemyName, enemyHealth);
             System.out.println("");
 
             for (int r = 0; r < ROWS; r++) {
                 for (int c = 0; c < COLS; c++) {
-                    if (r == playerRow && c == playerCol)      System.out.print('@');
-                    else if (r == enemyRow && c == enemyCol)   System.out.print('X');
-                    else if (r == 0 || r == ROWS - 1)          System.out.print('-');
-                    else if (c == 0 || c == COLS - 1)          System.out.print('|');
-                    else                                       System.out.print(' ');
+                    if (r == playerRow && c == playerCol)
+                        System.out.print('@');
+                    else if (r == enemyRow && c == enemyCol)
+                        System.out.print('X');
+                    else if (r == 0 || r == ROWS - 1)
+                        System.out.print('-');
+                    else if (c == 0 || c == COLS - 1)
+                        System.out.print('|');
+                    else
+                        System.out.print(' ');
                 }
                 System.out.println();
             }
@@ -243,7 +248,7 @@ public class Main {
                 System.out.print("[A]ttack  [D]efend  [P]otion  [L]eft  [R]ight  [F]lee: ");
             } else {
                 System.out.print("The " + enemyName + " is out of reach.  "
-                                 + "[L]eft  [R]ight  [D]efend  [P]otion  [F]lee: ");
+                        + "[L]eft  [R]ight  [D]efend  [P]otion  [F]lee: ");
             }
             String action = in.nextLine().trim().toUpperCase();
 
@@ -332,23 +337,91 @@ public class Main {
 
         System.out.printf("%nThe arena empties after %d turns.%n", turnNumber - 1);
     }
+
+    static void printBanner(String text) {
+        System.out.println("=".repeat(40));
+        System.out.printf("  %s%n", text);
+
+    }
+
+    static void printHealthBar(int hp) {
+        int bars = hp / 5;
+        System.out.printf("[%s] %d%%%n", "#".repeat(bars) + "-".repeat(20 - bars), hp);
+
+    }
+
+    static void printTitle() {
+        System.out.print("""
+                ========================
+                     ARENA(?)
+                ========================
+                """);
+        System.out.println("Sand, torchlight, and a crowd that has already decided how this ends.");
+        System.out.println("The gate opens.");
+        System.out.println("");
+    }
+
+    static void countdown(int from) {
+        for (int i = 3; i > 0; i--) {
+            System.out.println(i + "...");
+        }
+        System.out.println("FIGHT!");
+        System.out.println("");
+    }
+
+    static boolean isAlive(int hp) {
+        return hp > 0;
+    }
+
+    static int calculateDamage(int power, int roll) {
+        return calculateDamage(power, roll, 2);
+    }
+
+    static int applyDamage(int hp, int damage) {
+        return hp - damage;
+    }
+
+    static void drawArena(int playerRow, int playerCol, int enemyRow, int enemyCol) {
+
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS; c++) {
+                if (r == playerRow && c == playerCol)
+                    System.out.print('@');
+                else if (r == enemyRow && c == enemyCol)
+                    System.out.print('X');
+                else if (r == 0 || r == ROWS - 1)
+                    System.out.print('-');
+                else if (c == 0 || c == COLS - 1)
+                    System.out.print('|');
+                else
+                    System.out.print(' ');
+            }
+            System.out.println();
+        }
+        System.out.println("");
+
+    }
+
+    static int readChoice(Scanner in, int min, int max) {
+        int choice;
+        do {
+            System.out.printf("Choose %d-%d: ", min, max);
+            while (!in.hasNextInt()) {
+                in.next();
+                System.out.printf("Numbers only. Choose %d-%d: ", min, max);
+            }
+            choice = in.nextInt();
+            in.nextLine();
+        } while (choice < min || choice > max);
+        return choice;
+    }
+
+
+    static int calculateDamage(int power, int roll, double critMultiplier) {
+        if (roll >= 9)
+            return (int) (power * critMultiplier);
+        if (roll >= 3)
+            return power;
+        return 0;
+    }
 }
-
-        static void printBanner(String text){
-            System.out.println("=".repeat(40));
-            System.out.printf("  %s%n", text);
-
-        }
-
-        static void printHealthBar(int hp) {
-
-
-        }
-
-        static void printTitle(){
-
-        }
-
-        static void countdown (int from){
-            
-        }

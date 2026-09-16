@@ -1,144 +1,35 @@
 /*
- * U1 L10 — METHODS, PARAMETERS, RETURN VALUES · STARTER CODE
- * 7184 Software Development · Unit 1, Lesson 10
+ * U1 L11 — ARRAYS AND 2D GAME BOARDS · STARTER CODE
+ * 7184 Software Development · Unit 1, Lesson 11
  *
- * ALREADY HERE:  Lessons 1-9 finished. It works. It is also 258 lines long
- *                and every one of them is inside main.
- * YOU'RE ADDING: nothing. Today you MOVE things.
+ * START FROM YOUR OWN LESSON 10 FILE. The code below is the L10 solution, for
+ * anyone who lost theirs. The TODO markers are the same either way.
  *
  *     javac Main.java
  *     java Main
  *
- * THE RULE OF THE DAY: BEHAVIOUR MUST NOT CHANGE.
+ * THE ONE IDEA: Lesson 9 DREW the grid with if-statements. Today you STORE it
+ * in a char[][]. Then a hazard is one assignment, and collision is reading the
+ * cell you are about to step into.
  *
- *   1. Run it now. Play one fight. Write down what happens.
- *   2. Refactor.
- *   3. Run it again. If anything is different, you broke it.
+ * SIX TODOs, marked in the code below. Do them in order. Compile after each.
  *
- * That discipline has a name — refactoring — and it is worth more than the
- * syntax you learn today.
+ *   TODO 1  the pack       two arrays + printInventory + findItem     (add)
+ *   TODO 2  the board      newArena() builds a char[][]                (add)
+ *   TODO 3  drawing        drawArena(char[][]) replaces the L9 loop    (replace)
+ *   TODO 4  moving         peek() + clear / update / set               (replace)
+ *   TODO 5  the log        damageLog[] and average()                   (add)
+ *   TODO 6  break it       two errors on purpose, then undo them
  *
- * ==========================================================================
- * YOUR TARGET
+ * THREE FACTS THAT CAUSE EVERY ARRAY BUG
+ *   new String[5] is five forever.     .length has NO parentheses.
+ *   Indices run 0 to length-1.         String[] starts full of null.
  *
- *   main right now:  258 lines
- *   main by the end: under 60
+ * FINISHED EARLY?  A hazard '^' that hurts and a treasure '$' that pays. One
+ * line each to place them (see TODO 2) and two branches to react (TODO 4).
  *
- * Count it before and after. Both numbers go on the board.
- * ==========================================================================
- *
- * HOW TO DO THIS WITHOUT BREAKING IT
- *
- *   Move ONE thing. Compile. Run. Then move the next one.
- *
- *   Moving six methods and then compiling gives you six errors at once and no
- *   idea which change caused which. Moving one gives you one.
- *
- * ==========================================================================
- * THE ORDER TO WORK IN — easiest first, so you get a win early
- *
- * TODO 1: the pure-output ones. No return value; nothing to get subtly wrong.
- *
- *           static void printBanner(String text) {
- *               System.out.println("=".repeat(40));
- *               System.out.printf("  %s%n", text);
- *           }
- *
- *           static void printHealthBar(int hp) { ... }
- *           static void printTitle() { ... }
- *           static void countdown(int from) { ... }
- *
- *         Methods go at CLASS level — as siblings of main, not inside it.
- *         Look at where main's closing brace is and put them after it.
- *
- * TODO 2: the ones that hand a value back.
- *
- *           static boolean isAlive(int hp) {
- *               return hp > 0;
- *           }
- *
- *           static int calculateDamage(int power, int roll) {
- *               if (roll >= 9) return power * 2;
- *               if (roll >= 3) return power;
- *               return 0;
- *           }
- *
- *           static int applyDamage(int hp, int damage) { return hp - damage; }
- *
- *         Three returns in one method is fine. The first one that runs wins.
- *
- * TODO 3: the arena. It is the biggest single block in main and it moves
- *         without changing a character:
- *
- *           static void drawArena(int playerRow, int playerCol,
- *                                 int enemyRow, int enemyCol) { ... }
- *
- *         It needs FOUR parameters because a method cannot see main's local
- *         variables. That is not a limitation to work around — it is the
- *         entire point. The method works for any positions you hand it.
- *
- * TODO 4: the big win — the input validation from Lesson 8.
- *
- *           static int readChoice(Scanner in, int min, int max) {
- *               int choice;
- *               do {
- *                   System.out.printf("Choose %d-%d: ", min, max);
- *                   while (!in.hasNextInt()) {
- *                       in.next();
- *                       System.out.printf("Numbers only. Choose %d-%d: ", min, max);
- *                   }
- *                   choice = in.nextInt();
- *                   in.nextLine();
- *               } while (choice < min || choice > max);
- *               return choice;
- *           }
- *
- *         Twelve lines you fought for in Lesson 8, now one call — and you can
- *         use it anywhere you need a number in a range. THAT is abstraction.
- *
- * TODO 5: OVERLOAD calculateDamage with a crit-multiplier version.
- *
- *           static int calculateDamage(int power, int roll, double critMultiplier)
- *
- *         Same name, different PARAMETER LIST. Two methods that differ only in
- *         return type will not compile — try it once so you see the error.
- *
- * ==========================================================================
- * THE ONE THAT WILL CATCH YOU
- *
- *   static void tryToHeal(int hp) { hp += 50; }   // does NOTHING
- *
- *   Java hands the method a COPY. Changing the copy does not change yours.
- *   The fix is to give it back:
- *
- *       health = heal(health, 50);
- *
- *   When a method "does nothing", this is why. Every time.
- *
- * ==========================================================================
- * FINISHED EARLY?
- *
- *   Extract the entire enemy turn into one method.
- *
- *   You will find you need several values back — the enemy's health, the
- *   damage dealt, whether it is still standing — and there is only one
- *   return. Sit with that for five minutes.
- *
- *   You want to return a whole FIGHTER. In Unit 2 you will.
- *
- * ==========================================================================
- * WHAT TO SUBMIT — THIS IS CHECKPOINT 1
- *
- *   Back up as Arena_CP1_LastnameF and submit it on Canvas.
- *   Your game must behave exactly as it did this morning.
+ * BEFORE YOU LEAVE: back up as Arena_U1L11_LastnameF and submit.
  */
-
-// ---------------------------------------------------------------------------
-// Your Lesson 9 file goes below, unchanged. Start from YOUR OWN code — the
-// point of today is refactoring what you wrote, not typing something new.
-//
-// If you have lost your L9 work, ask, and start from the L9 solution instead.
-// ---------------------------------------------------------------------------
 
 import java.util.Scanner;
 
@@ -148,10 +39,194 @@ public class Main {
     static final int STARTING_GOLD = 20;
     static final int ROWS = 5;
     static final int COLS = 11;
+    // TODO 1a · add:   static final int PACK_SLOTS = 5;
 
+    static final int PACK_SLOTS = 5;
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
 
+        printTitle();
+        String playerName = readName(in);
+        int difficulty = readChoice(in, 1, 3, "Difficulty (1 = easy, 2 = normal, 3 = brutal)");
+        System.out.println("Difficulty: " + difficultyName(difficulty));
+        System.out.println("");
+
+        int health = MAX_HEALTH, potions = 2, playerCol = 1;
+        final int playerRow = 2, enemyRow = 2, enemyCol = 9;
+        String enemyName = "Cave Goblin";
+        int enemyHealth = 30 + difficulty * 15;
+        int enemyPower = 4 + difficulty * 3;
+
+        // ---- TODO 1b · THE PACK ------------------------------------------
+        // Two arrays side by side, and a count of how many slots are filled:
+        //
+             String[] itemNames = new String[PACK_SLOTS];
+             int[] itemCounts = new int[PACK_SLOTS];
+             int itemSlots = 0;
+             itemNames[0] = "Potion";  itemCounts[0] = 2;  itemSlots++;
+             itemNames[1] = "Bomb";    itemCounts[1] = 1;  itemSlots++;
+        
+        // Then delete `potions = 2` from the line above -- the pack holds the
+        // potions now. The "P" case in the switch is TODO 1d.
+        // ------------------------------------------------------------------
+
+        // ---- TODO 5a · THE DAMAGE LOG ------------------------------------
+             int[] damageLog = new int[20];
+             int loggedTurns = 0;
+        // An int[] starts full of 0, so nothing to fill in.
+        // ------------------------------------------------------------------
+
+        // ---- TODO 2b · BUILD THE BOARD -----------------------------------
+             char[][] arena = newArena();          // TODO 2a writes newArena
+             arena[playerRow][playerCol] = '@';
+             arena[enemyRow][enemyCol]   = 'X';
+               arena[3][4] = '^';  arena[1][7] = '$';
+        // ------------------------------------------------------------------
+
+        openingCeremony(in, playerName, health, enemyName, enemyHealth);
+
+        int turnNumber = 1;
+        boolean playing = true, fled = false;
+
+        while (playing) {
+            // ---- TODO 3a · REPLACE the drawTurn call with three calls ------
+                 printBanner("Turn " + turnNumber);
+                 printFighters(playerName, health, enemyName, enemyHealth);
+                 drawArena(arena);                 // the board, not positions
+                 printInventory(itemNames, itemCounts, itemSlots);   // TODO 1c
+            // then delete the drawTurn method below. It only bundled these.
+            // ----------------------------------------------------------------
+            drawTurn(turnNumber, playerName, health, enemyName, enemyHealth,
+                     playerRow, playerCol, enemyRow, enemyCol);
+
+            boolean adjacent = isAdjacent(playerRow, playerCol, enemyRow, enemyCol);
+            int roll = (turnNumber * 3) % 10 + 1;
+            String action = readAction(in, adjacent, enemyName);
+            int damage = 0;
+
+            switch (action) {
+                case "A" -> damage = attack(adjacent, enemyPower, roll);
+
+                // ---- TODO 4a · REPLACE the "L" and "R" cases with ONE case --
+                     case "L", "R" -> {
+                         int target = playerCol + (action.equals("L") ? -1 : 1);
+                         char cell = peek(arena, playerRow, target);   // TODO 4b
+                         if (cell == '#' || cell == 'X') {
+                             System.out.println(cell == '#' ? "The wall stops you."
+                             
+                                                            : "The " + enemyName + " blocks your way.");
+                         } else {
+                             arena[playerRow][playerCol] = ' ';       // 1. clear the old cell
+                         playerCol = target;                      // 2. move
+                             arena[playerRow][playerCol] = '@';       // 3. set the new cell
+                             System.out.println(action.equals("L") ? "You step left." : "You step right.");
+                         }
+                     }
+                // Skip step 1 and the player leaves a trail of '@'. You will see it.
+                // Then delete moveLeft and moveRight below -- the board replaced them.
+                // Extension: before step 2, if cell == '^' take 8 damage; if '$' add gold.
+                // ----------------------------------------------------------------
+                
+
+                case "D" -> health = defend(health);
+
+                // ---- TODO 1d · REPLACE the "P" case: potions live in the pack --
+                     case "P" -> {
+                         int slot = findItem(itemNames, itemSlots, "Potion");   // TODO 1c
+                         if (slot >= 0 && itemCounts[slot] > 0) {
+                             itemCounts[slot]--;
+                             health = drinkPotion(health);
+                         } else {
+                             System.out.println("You reach for a potion. There are none.");
+                         }
+                     }
+                // ----------------------------------------------------------------
+                
+                case "F" -> fled = flee();
+                default -> System.out.println("The crowd jeers. You hesitate and lose the turn.");
+            }
+
+            enemyHealth = applyDamage(enemyHealth, damage);
+
+            // ---- TODO 5b · record this turn's damage ---------------------------
+                if (loggedTurns < damageLog.length) {      // < length, never <=
+                     damageLog[loggedTurns++] = damage;
+            //     }
+            // --------------------------------------------------------------------
+
+            health = enemyResponse(fled, adjacent, health, enemyHealth, enemyPower, enemyName);
+            printHealthBar(health);
+
+            playing = !endOfFight(fled, health, enemyHealth, enemyName, turnNumber);
+            turnNumber++;
+        }
+
+        // ---- TODO 5c · print the average --------------------------------------
+             System.out.printf("Average damage per turn: %.1f%n", average(damageLog, loggedTurns));
+        // ------------------------------------------------------------------------
+        System.out.printf("%nThe arena empties after %d turns.%n", turnNumber - 1);
+    }
+}
+
+    // ================= arrays (new today) =================
+    //
+    // ---- TODO 2a · newArena: build the board ---------------------------------
+         static char[][] newArena() {
+             char[][] arena = new char[ROWS][COLS];
+             for (int r = 0; r < arena.length; r++) {              // arena.length    = rows
+                 for (int c = 0; c < arena[r].length; c++) {       // arena[r].length = columns
+                     boolean edge = (r == 0 || r == arena.length - 1
+                                  || c == 0 || c == arena[r].length - 1);
+                     arena[r][c] = edge ? '#' : ' ';
+                 }
+             }
+             return arena;
+         }
+    //
+    // ---- TODO 4b · peek: what is in a cell, without stepping into it ---------
+         static char peek(char[][] arena, int row, int col) {
+             if (row < 0 || row >= arena.length) return '#';      // off the board = wall
+             if (col < 0 || col >= arena[row].length) return '#';
+             return arena[row][col];
+         }
+    //     That IS collision detection. Unit 3 does exactly this with sprites.
+    //
+    // ---- TODO 1c · printInventory and findItem -------------------------------
+         static void printInventory(String[] names, int[] counts, int slots) {
+             System.out.println("-- Pack --");
+             for (int i = 0; i < slots; i++) {                     // to slots, NOT names.length
+                 System.out.printf("  %d) %-10s x%d%n", i + 1, names[i], counts[i]);
+             }
+             System.out.println("");
+        }
+    
+         static int findItem(String[] names, int slots, String wanted) {
+             for (int i = 0; i < slots; i++) {
+                 if (names[i].equals(wanted)) return i;
+             }
+             return -1;                                             // not in the pack
+         }
+    //     Loop to `slots`, not names.length: the tail of the array is still null,
+    //     and null.equals(...) throws.
+    //
+    // ---- TODO 5d · average -----------------------------------------------------
+         static double average(int[] log, int used) {
+             if (used == 0) return 0.0;
+             int total = 0;
+             for (int i = 0; i < used; i++) total += log[i];
+             return (double) total / used;                          // the L3 cast
+         }
+    //
+    // ---- TODO 6 · BREAK IT ON PURPOSE, then put it back ----------------------
+    //     itemNames[5] = "x";        -> ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5
+    //     itemNames[3].length();     -> NullPointerException (slot 3 was never assigned)
+    //     Read both messages out loud. The first one tells you the index AND the
+    //     length, which is the whole diagnosis.
+    // --------------------------------------------------------------------------
+
+    // ================= output =================
+
+    static void printTitle() {
         System.out.print("""
                 ========================
                      THE ARENA
@@ -160,255 +235,94 @@ public class Main {
         System.out.println("Sand, torchlight, and a crowd that has already decided how this ends.");
         System.out.println("The gate opens.");
         System.out.println("");
+    }
 
-        System.out.print("What is your name, challenger? ");
-        String playerName = in.nextLine().trim();
-        if (playerName.isEmpty()) {
-            playerName = "Challenger";
-        }
-
-        int difficulty;
-        do {
-            System.out.print("Difficulty (1 = easy, 2 = normal, 3 = brutal): ");
-            while (!in.hasNextInt()) {
-                System.out.print("Numbers only. Try again: ");
-                in.next();
-            }
-            difficulty = in.nextInt();
-        } while (difficulty < 1 || difficulty > 3);
-        in.nextLine();
-
-        String difficultyName = switch (difficulty) {
-            case 1 -> "Easy";
-            case 2 -> "Normal";
-            case 3 -> "Brutal";
-            default -> "Unknown";
-        };
-        System.out.println("Difficulty: " + difficultyName);
-        System.out.println("");
-
-        int health = MAX_HEALTH;
-        int potions = 2;
-        int playerRow = 2, playerCol = 1;
-        int enemyRow = 2, enemyCol = 9;
-
-        String enemyName = "Cave Goblin";
-        int enemyHealth = 30 + difficulty * 15;
-        int enemyPower = 4 + difficulty * 3;
-
-        System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n",
-                playerName, health, MAX_HEALTH, STARTING_GOLD, 1);
-        System.out.println("");
-
-        System.out.printf("%s enters the arena. The %s has %d HP.%n",
-                playerName, enemyName, enemyHealth);
+    static void openingCeremony(Scanner in, String name, int hp, String enemy, int enemyHp) {
+        printStatus(name, hp, MAX_HEALTH, STARTING_GOLD, 1);
+        System.out.printf("%s enters the arena. The %s has %d HP.%n", name, enemy, enemyHp);
         System.out.print("Press Enter to begin...");
         in.nextLine();
         System.out.println("");
-
-        for (int i = 3; i > 0; i--) {
-            System.out.println(i + "...");
-        }
-        System.out.println("FIGHT!");
+        countdown(3);
         System.out.println("");
+    }
 
-        int turnNumber = 1;
-        boolean playing = true;
-        boolean fled = false;
-
-        while (playing) {
-            System.out.println("=".repeat(40));
-            System.out.printf("  Turn %d%n", turnNumber);
-            System.out.printf("%-12s HP %3d/%3d    %-14s HP %3d%n",
-                    playerName, health, MAX_HEALTH, enemyName, enemyHealth);
-            System.out.println("");
-
-            for (int r = 0; r < ROWS; r++) {
-                for (int c = 0; c < COLS; c++) {
-                    if (r == playerRow && c == playerCol)
-                        System.out.print('@');
-                    else if (r == enemyRow && c == enemyCol)
-                        System.out.print('X');
-                    else if (r == 0 || r == ROWS - 1)
-                        System.out.print('-');
-                    else if (c == 0 || c == COLS - 1)
-                        System.out.print('|');
-                    else
-                        System.out.print(' ');
-                }
-                System.out.println();
-            }
-            System.out.println("");
-
-            boolean adjacent = (playerRow == enemyRow) && (Math.abs(playerCol - enemyCol) == 1);
-            int roll = (turnNumber * 3) % 10 + 1;
-            int damage = 0;
-
-            if (adjacent) {
-                System.out.print("[A]ttack  [D]efend  [P]otion  [L]eft  [R]ight  [F]lee: ");
-            } else {
-                System.out.print("The " + enemyName + " is out of reach.  "
-                        + "[L]eft  [R]ight  [D]efend  [P]otion  [F]lee: ");
-            }
-            String action = in.nextLine().trim().toUpperCase();
-
-            switch (action) {
-                case "A" -> {
-                    if (!adjacent) {
-                        System.out.println("You swing at empty air. Get closer first.");
-                    } else if (roll >= 9) {
-                        damage = enemyPower * 2;
-                        System.out.println("CRITICAL HIT!");
-                    } else if (roll >= 3) {
-                        damage = enemyPower;
-                        System.out.println("A solid hit.");
-                    } else {
-                        System.out.println("You miss.");
-                    }
-                }
-                case "L" -> {
-                    if (playerCol - 1 < 1) {
-                        System.out.println("The wall stops you.");
-                    } else {
-                        playerCol--;
-                        System.out.println("You step left.");
-                    }
-                }
-                case "R" -> {
-                    if (playerCol + 1 > COLS - 2) {
-                        System.out.println("The wall stops you.");
-                    } else if (playerCol + 1 == enemyCol) {
-                        System.out.println("The " + enemyName + " blocks your way.");
-                    } else {
-                        playerCol++;
-                        System.out.println("You step right.");
-                    }
-                }
-                case "D" -> {
-                    health += 5;
-                    System.out.println("You raise your guard and recover 5 HP.");
-                }
-                case "P" -> {
-                    if (potions > 0) {
-                        potions--;
-                        health += 25;
-                        System.out.println("You drink a potion and recover 25 HP.");
-                    } else {
-                        System.out.println("You reach for a potion. There are none.");
-                    }
-                }
-                case "F" -> {
-                    fled = true;
-                    System.out.println("You run for the gate. The crowd howls.");
-                }
-                default -> System.out.println("The crowd jeers. You hesitate and lose the turn.");
-            }
-
-            enemyHealth -= damage;
-
-            if (!fled && enemyHealth > 0 && adjacent) {
-                health -= enemyPower;
-                System.out.printf("The %s strikes back for %d.%n", enemyName, enemyPower);
-            }
-
-            if (health > MAX_HEALTH) {
-                health = MAX_HEALTH;
-            } else if (health < 0) {
-                health = 0;
-            }
-
-            int bars = health / 5;
-            String bar = "#".repeat(bars) + "-".repeat(20 - bars);
-            System.out.printf("[%s] %d%%%n", bar, health);
-
-            if (fled) {
-                System.out.println("You escape with your life, and nothing else.");
-                playing = false;
-            } else if (enemyHealth <= 0) {
-                System.out.printf("%nThe %s falls! You win on turn %d.%n", enemyName, turnNumber);
-                playing = false;
-            } else if (health <= 0) {
-                System.out.printf("%nYou have fallen on turn %d.%n", turnNumber);
-                playing = false;
-            }
-
-            turnNumber++;
-        }
-
-        System.out.printf("%nThe arena empties after %d turns.%n", turnNumber - 1);
+    // TODO 3a · delete this method once main calls the three parts itself.
+    static void drawTurn(int turnNumber, String name, int hp, String enemy, int enemyHp,
+                         int playerRow, int playerCol, int enemyRow, int enemyCol) {
+        printBanner("Turn " + turnNumber);
+        printFighters(name, hp, enemy, enemyHp);
+        drawArena(playerRow, playerCol, enemyRow, enemyCol);
     }
 
     static void printBanner(String text) {
         System.out.println("=".repeat(40));
         System.out.printf("  %s%n", text);
+    }
 
+    static void printStatus(String name, int hp, int maxHp, int gold, int level) {
+        System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n", name, hp, maxHp, gold, level);
+        System.out.println("");
+    }
+
+    static void printFighters(String name, int hp, String enemy, int enemyHp) {
+        System.out.printf("%-12s HP %3d/%3d    %-14s HP %3d%n", name, hp, MAX_HEALTH, enemy, enemyHp);
+        System.out.println("");
     }
 
     static void printHealthBar(int hp) {
         int bars = hp / 5;
         System.out.printf("[%s] %d%%%n", "#".repeat(bars) + "-".repeat(20 - bars), hp);
-
-    }
-
-    static void printTitle() {
-        System.out.print("""
-                ========================
-                     ARENA(?)
-                ========================
-                """);
-        System.out.println("Sand, torchlight, and a crowd that has already decided how this ends.");
-        System.out.println("The gate opens.");
-        System.out.println("");
     }
 
     static void countdown(int from) {
-        for (int i = 3; i > 0; i--) {
+        for (int i = from; i > 0; i--) {
             System.out.println(i + "...");
         }
         System.out.println("FIGHT!");
-        System.out.println("");
     }
 
-    static boolean isAlive(int hp) {
-        return hp > 0;
-    }
-
-    static int calculateDamage(int power, int roll) {
-        return calculateDamage(power, roll, 2);
-    }
-
-    static int applyDamage(int hp, int damage) {
-        return hp - damage;
-    }
-
+    // ---- TODO 3b · REPLACE this whole method ------------------------------------
+    // It DRAWS the board from positions. The new one PRINTS the stored board:
+    //
+         static void drawArena(char[][] arena) {
+             for (char[] row : arena) {               // a 2D array is an array of rows
+                 System.out.println(new String(row));
+             }
+             System.out.println("");
+         }
+    //
+    // Same name, different parameter. Keep ROWS and COLS -- newArena uses them.
+    // -----------------------------------------------------------------------------
     static void drawArena(int playerRow, int playerCol, int enemyRow, int enemyCol) {
-
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
-                if (r == playerRow && c == playerCol)
-                    System.out.print('@');
-                else if (r == enemyRow && c == enemyCol)
-                    System.out.print('X');
-                else if (r == 0 || r == ROWS - 1)
-                    System.out.print('-');
-                else if (c == 0 || c == COLS - 1)
-                    System.out.print('|');
-                else
-                    System.out.print(' ');
+                if (r == playerRow && c == playerCol)      System.out.print('@');
+                else if (r == enemyRow && c == enemyCol)   System.out.print('X');
+                else if (r == 0 || r == ROWS - 1)          System.out.print('-');
+                else if (c == 0 || c == COLS - 1)          System.out.print('|');
+                else                                       System.out.print(' ');
             }
             System.out.println();
         }
         System.out.println("");
-
     }
 
-    static int readChoice(Scanner in, int min, int max) {
+    // ================= input =================
+
+    static String readName(Scanner in) {
+        System.out.print("What is your name, challenger? ");
+        String name = in.nextLine().trim();
+        return name.isEmpty() ? "Challenger" : name;
+    }
+
+    static int readChoice(Scanner in, int min, int max, String prompt) {
         int choice;
         do {
-            System.out.printf("Choose %d-%d: ", min, max);
+            System.out.printf("%s: ", prompt);
             while (!in.hasNextInt()) {
                 in.next();
-                System.out.printf("Numbers only. Choose %d-%d: ", min, max);
+                System.out.printf("Numbers only. %s: ", prompt);
             }
             choice = in.nextInt();
             in.nextLine();
@@ -416,12 +330,129 @@ public class Main {
         return choice;
     }
 
+    static String readAction(Scanner in, boolean adjacent, String enemyName) {
+        if (adjacent) {
+            System.out.print("[A]ttack  [D]efend  [P]otion  [L]eft  [R]ight  [F]lee: ");
+        } else {
+            System.out.print("The " + enemyName + " is out of reach.  "
+                             + "[L]eft  [R]ight  [D]efend  [P]otion  [F]lee: ");
+        }
+        return in.nextLine().trim().toUpperCase();
+    }
+
+    // ================= things that give a value back =================
+
+    static String difficultyName(int difficulty) {
+        return switch (difficulty) {
+            case 1 -> "Easy";
+            case 2 -> "Normal";
+            case 3 -> "Brutal";
+            default -> "Unknown";
+        };
+    }
+
+    static boolean isAlive(int hp) {
+        return hp > 0;
+    }
+
+    static boolean isAdjacent(int r1, int c1, int r2, int c2) {
+        return r1 == r2 && Math.abs(c1 - c2) == 1;
+    }
+
+    static int calculateDamage(int power, int roll) {
+        if (roll >= 9) return power * 2;
+        if (roll >= 3) return power;
+        return 0;
+    }
 
     static int calculateDamage(int power, int roll, double critMultiplier) {
-        if (roll >= 9)
-            return (int) (power * critMultiplier);
-        if (roll >= 3)
-            return power;
+        if (roll >= 9) return (int) (power * critMultiplier);
+        if (roll >= 3) return power;
         return 0;
+    }
+
+    static int applyDamage(int hp, int damage) {
+        return hp - damage;
+    }
+
+    static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    static int attack(boolean adjacent, int enemyPower, int roll) {
+        if (!adjacent) {
+            System.out.println("You swing at empty air. Get closer first.");
+            return 0;
+        }
+        int damage = calculateDamage(enemyPower, roll);
+        if (damage == 0)                   System.out.println("You miss.");
+        else if (damage > enemyPower)      System.out.println("CRITICAL HIT!");
+        else                               System.out.println("A solid hit.");
+        return damage;
+    }
+
+    // TODO 4a · delete moveLeft and moveRight once the "L", "R" case uses the board.
+    static int moveLeft(int playerCol) {
+        if (playerCol - 1 < 1) {
+            System.out.println("The wall stops you.");
+            return playerCol;
+        }
+        System.out.println("You step left.");
+        return playerCol - 1;
+    }
+
+    static int moveRight(int playerCol, int enemyCol, String enemyName) {
+        if (playerCol + 1 > COLS - 2) {
+            System.out.println("The wall stops you.");
+            return playerCol;
+        }
+        if (playerCol + 1 == enemyCol) {
+            System.out.println("The " + enemyName + " blocks your way.");
+            return playerCol;
+        }
+        System.out.println("You step right.");
+        return playerCol + 1;
+    }
+
+    static int defend(int health) {
+        System.out.println("You raise your guard and recover 5 HP.");
+        return health + 5;
+    }
+
+    static int drinkPotion(int health) {
+        System.out.println("You drink a potion and recover 25 HP.");
+        return health + 25;
+    }
+
+    static boolean flee() {
+        System.out.println("You run for the gate. The crowd howls.");
+        return true;
+    }
+
+    static int enemyResponse(boolean fled, boolean adjacent, int health,
+                             int enemyHealth, int enemyPower, String enemyName) {
+        if (!fled && isAlive(enemyHealth) && adjacent) {
+            health = applyDamage(health, enemyPower);
+            System.out.printf("The %s strikes back for %d.%n", enemyName, enemyPower);
+        }
+        return clamp(health, 0, MAX_HEALTH);
+    }
+    
+
+    static boolean endOfFight(boolean fled, int health, int enemyHealth,
+                              String enemyName, int turnNumber) {
+        if (fled) {
+            System.out.println("You escape with your life, and nothing else.");
+            return true;
+        }
+        if (!isAlive(enemyHealth)) {
+            System.out.printf("%nThe %s falls! You win on turn %d.%n", enemyName, turnNumber);
+            return true;
+        }
+        if (!isAlive(health)) {
+            System.out.printf("%nYou have fallen on turn %d.%n", turnNumber);
+            return true;
+        }
+        return false;
     }
 }

@@ -1,37 +1,40 @@
 /*
- * U1 L11 — ARRAYS AND 2D GAME BOARDS · STARTER CODE
- * 7184 Software Development · Unit 1, Lesson 11
+ * U1 L12 — RANDOM, MATH, DEBUGGING, DOCUMENTATION · STARTER CODE
+ * 7184 Software Development · Unit 1, Lesson 12 (two days)
  *
- * START FROM YOUR OWN LESSON 10 FILE. The code below is the L10 solution, for
+ * START FROM YOUR OWN LESSON 11 FILE. The code below is the L11 solution, for
  * anyone who lost theirs. The TODO markers are the same either way.
  *
  *     javac Main.java
  *     java Main
  *
- * THE ONE IDEA: Lesson 9 DREW the grid with if-statements. Today you STORE it
- * in a char[][]. Then a hazard is one assignment, and collision is reading the
- * cell you are about to step into.
+ * DAY 1 — five TODOs, marked in the code below. In order. Compile after each.
  *
- * SIX TODOs, marked in the code below. Do them in order. Compile after each.
+ *   TODO 1  clamp       Math.max / Math.min already does it: read it, then TEST it
+ *   TODO 2  Random      one Random, made once, replaces the fake roll        (replace)
+ *   TODO 3  loot        rollLoot + awardLoot, DESIGNED ON PAPER FIRST        (add)
+ *   TODO 4  prove it    verifyLootTable rolls it 1000 times                  (add)
+ *   TODO 5  variance    damage wobbles by -2..+2, never below 0              (edit attack)
  *
- *   TODO 1  the pack       two arrays + printInventory + findItem     (add)
- *   TODO 2  the board      newArena() builds a char[][]                (add)
- *   TODO 3  drawing        drawArena(char[][]) replaces the L9 loop    (replace)
- *   TODO 4  moving         peek() + clear / update / set               (replace)
- *   TODO 5  the log        damageLog[] and average()                   (add)
- *   TODO 6  break it       two errors on purpose, then undo them
+ * PAPER FIRST, for TODO 3. Four steps, written down before the editor opens:
+ *   RESTATE the problem · DECOMPOSE it into steps · SEQUENCE them · TEST cases
+ * The teacher asks for the paper before looking at the screen.
  *
- * THREE FACTS THAT CAUSE EVERY ARRAY BUG
- *   new String[5] is five forever.     .length has NO parentheses.
- *   Indices run 0 to length-1.         String[] starts full of null.
+ * DAY 2 — no new markers in this file:
+ *   BuggyArena.java   three bugs; fix one at a time; write down HOW you found each
+ *   a breakpoint      in your own game loop; step one full turn in the Variables panel
+ *   TODO 6  Javadoc   type /** and Enter above every method from L10-L12
+ *   README.md         what it is, how to run it, the controls, one known issue
  *
- * FINISHED EARLY?  A hazard '^' that hurts and a treasure '$' that pays. One
- * line each to place them (see TODO 2) and two branches to react (TODO 4).
- *
- * BEFORE YOU LEAVE: back up as Arena_U1L11_LastnameF and submit.
+ * BEFORE YOU LEAVE: remove any fixed seed (a seeded game plays the same every
+ * time and looks broken), back up as Arena_U1L12_LastnameF, and submit.
+ * Day 2's backup is Project 1 checkpoint 2: Arena_P1_CP2_LastnameF.
  */
 
 import java.util.Scanner;
+// TODO 2a · add:   import java.util.Random;
+
+import java.util.Random;
 
 public class Main {
 
@@ -39,11 +42,20 @@ public class Main {
     static final int STARTING_GOLD = 20;
     static final int ROWS = 5;
     static final int COLS = 11;
-    // TODO 1a · add:   static final int PACK_SLOTS = 5;
-
     static final int PACK_SLOTS = 5;
+
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
+
+        // ---- TODO 2b · ONE Random for the whole program, made HERE --------- 
+
+        Random rng = new Random();
+      
+
+        //     Random rng = new Random();
+        //     // Random rng = new Random(42);   // same rolls every run: for bug hunting only
+        // A Random made inside the loop is re-made every turn and stops being random.
+        // ------------------------------------------------------------------
 
         printTitle();
         String playerName = readName(in);
@@ -51,37 +63,37 @@ public class Main {
         System.out.println("Difficulty: " + difficultyName(difficulty));
         System.out.println("");
 
-        int health = MAX_HEALTH, potions = 2, playerCol = 1;
+        int health = MAX_HEALTH, gold = STARTING_GOLD, playerCol = 1;
+        // TODO 3c · add:   int level = 1;          (a Relic grants +1 level)
+        int level = 1;
         final int playerRow = 2, enemyRow = 2, enemyCol = 9;
+
         String enemyName = "Cave Goblin";
         int enemyHealth = 30 + difficulty * 15;
         int enemyPower = 4 + difficulty * 3;
 
-        // ---- TODO 1b · THE PACK ------------------------------------------
-        // Two arrays side by side, and a count of how many slots are filled:
-        //
-             String[] itemNames = new String[PACK_SLOTS];
-             int[] itemCounts = new int[PACK_SLOTS];
-             int itemSlots = 0;
-             itemNames[0] = "Potion";  itemCounts[0] = 2;  itemSlots++;
-             itemNames[1] = "Bomb";    itemCounts[1] = 1;  itemSlots++;
-        
-        // Then delete `potions = 2` from the line above -- the pack holds the
-        // potions now. The "P" case in the switch is TODO 1d.
-        // ------------------------------------------------------------------
+        // ---------- PARALLEL ARRAYS ----------
+        // Two arrays that must be kept in step BY HAND. Sort one without the
+        // other and every count belongs to the wrong item. That failure mode is
+        // the argument for objects in U2 — do not hide it.
+        String[] itemNames = new String[PACK_SLOTS];
+        int[] itemCounts = new int[PACK_SLOTS];
+        int itemSlots = 0;
 
-        // ---- TODO 5a · THE DAMAGE LOG ------------------------------------
-             int[] damageLog = new int[20];
-             int loggedTurns = 0;
-        // An int[] starts full of 0, so nothing to fill in.
-        // ------------------------------------------------------------------
+        itemNames[0] = "Potion";  itemCounts[0] = 2;  itemSlots++;
+        itemNames[1] = "Bomb";    itemCounts[1] = 1;  itemSlots++;
 
-        // ---- TODO 2b · BUILD THE BOARD -----------------------------------
-             char[][] arena = newArena();          // TODO 2a writes newArena
-             arena[playerRow][playerCol] = '@';
-             arena[enemyRow][enemyCol]   = 'X';
-               arena[3][4] = '^';  arena[1][7] = '$';
-        // ------------------------------------------------------------------
+        // int[] starts full of 0. String[] starts full of null — which is why
+        // touching an unassigned slot throws NullPointerException.
+        int[] damageLog = new int[20];
+        int loggedTurns = 0;
+
+        // ---------- THE BOARD ----------
+        char[][] arena = newArena();
+        arena[playerRow][playerCol] = '@';
+        arena[enemyRow][enemyCol] = 'X';
+        arena[3][4] = '^';      // hazard  — one line, because the grid stores the world
+        arena[1][7] = '$';      // treasure
 
         openingCeremony(in, playerName, health, enemyName, enemyHealth);
 
@@ -89,140 +101,200 @@ public class Main {
         boolean playing = true, fled = false;
 
         while (playing) {
-            // ---- TODO 3a · REPLACE the drawTurn call with three calls ------
-                 printBanner("Turn " + turnNumber);
-                 printFighters(playerName, health, enemyName, enemyHealth);
-                 drawArena(arena);                 // the board, not positions
-                 printInventory(itemNames, itemCounts, itemSlots);   // TODO 1c
-            // then delete the drawTurn method below. It only bundled these.
-            // ----------------------------------------------------------------
-            drawTurn(turnNumber, playerName, health, enemyName, enemyHealth,
-                     playerRow, playerCol, enemyRow, enemyCol);
+            printBanner("Turn " + turnNumber);
+            printFighters(playerName, health, enemyName, enemyHealth);
+            drawArena(arena);
+            printInventory(itemNames, itemCounts, itemSlots);
 
             boolean adjacent = isAdjacent(playerRow, playerCol, enemyRow, enemyCol);
-            int roll = (turnNumber * 3) % 10 + 1;
+            // ---- TODO 2c · REPLACE the fake roll with a real one --------------
+
+            // ------------------------------------------------------------------
+             int roll = rng.nextInt(1, 11);      // 1..10
             String action = readAction(in, adjacent, enemyName);
             int damage = 0;
 
             switch (action) {
-                case "A" -> damage = attack(adjacent, enemyPower, roll);
-
-                // ---- TODO 4a · REPLACE the "L" and "R" cases with ONE case --
-                     case "L", "R" -> {
-                         int target = playerCol + (action.equals("L") ? -1 : 1);
-                         char cell = peek(arena, playerRow, target);   // TODO 4b
-                         if (cell == '#' || cell == 'X') {
-                             System.out.println(cell == '#' ? "The wall stops you."
-                             
-                                                            : "The " + enemyName + " blocks your way.");
-                         } else {
-                             arena[playerRow][playerCol] = ' ';       // 1. clear the old cell
-                         playerCol = target;                      // 2. move
-                             arena[playerRow][playerCol] = '@';       // 3. set the new cell
-                             System.out.println(action.equals("L") ? "You step left." : "You step right.");
-                         }
-                     }
-                // Skip step 1 and the player leaves a trail of '@'. You will see it.
-                // Then delete moveLeft and moveRight below -- the board replaced them.
-                // Extension: before step 2, if cell == '^' take 8 damage; if '$' add gold.
-                // ----------------------------------------------------------------
-                
-
+                case "A" -> damage = attack(adjacent, enemyPower, roll, rng);   // TODO 5b · pass rng too
+                case "L", "R" -> {
+                    int target = playerCol + (action.equals("L") ? -1 : 1);
+                    char cell = peek(arena, playerRow, target);
+                    if (cell == '#' || cell == 'X') {
+                        System.out.println(cell == '#' ? "The wall stops you."
+                                                       : "The " + enemyName + " blocks your way.");
+                    } else {
+                        // Three steps, every time: clear, update, set.
+                        // Miss the clear and the player leaves a trail of '@'.
+                        arena[playerRow][playerCol] = ' ';
+                        if (cell == '^') {
+                            health = applyDamage(health, 8);
+                            System.out.println("You step on a spike trap. 8 damage.");
+                        } else if (cell == '$') {
+                            gold += 15;
+                            System.out.println("You scoop up 15 gold.");
+                        } else {
+                            System.out.println(action.equals("L") ? "You step left." : "You step right.");
+                        }
+                        playerCol = target;
+                        arena[playerRow][playerCol] = '@';
+                    }
+                }
                 case "D" -> health = defend(health);
-
-                // ---- TODO 1d · REPLACE the "P" case: potions live in the pack --
-                     case "P" -> {
-                         int slot = findItem(itemNames, itemSlots, "Potion");   // TODO 1c
-                         if (slot >= 0 && itemCounts[slot] > 0) {
-                             itemCounts[slot]--;
-                             health = drinkPotion(health);
-                         } else {
-                             System.out.println("You reach for a potion. There are none.");
-                         }
-                     }
-                // ----------------------------------------------------------------
-                
+                case "P" -> {
+                    int slot = findItem(itemNames, itemSlots, "Potion");
+                    if (slot >= 0 && itemCounts[slot] > 0) {
+                        itemCounts[slot]--;
+                        health = drinkPotion(health);
+                    } else {
+                        System.out.println("You reach for a potion. There are none.");
+                    }
+                }
                 case "F" -> fled = flee();
                 default -> System.out.println("The crowd jeers. You hesitate and lose the turn.");
             }
 
             enemyHealth = applyDamage(enemyHealth, damage);
-
-            // ---- TODO 5b · record this turn's damage ---------------------------
-                if (loggedTurns < damageLog.length) {      // < length, never <=
-                     damageLog[loggedTurns++] = damage;
-            //     }
-            // --------------------------------------------------------------------
+            if (loggedTurns < damageLog.length) {
+                damageLog[loggedTurns++] = damage;      // < length, never <=
+            }
 
             health = enemyResponse(fled, adjacent, health, enemyHealth, enemyPower, enemyName);
             printHealthBar(health);
 
+            // ---- TODO 3d · REPLACE the line below: loot drops when the enemy dies
+                 boolean over = endOfFight(fled, health, enemyHealth, enemyName, turnNumber);
+                 if (over && !fled && !isAlive(enemyHealth)) {
+                     String loot = rollLoot(rng);                              // TODO 3a
+                     if (loot.equals("Relic")) {
+                         level++;
+                         System.out.println("The relic hums. You reach level " + level + ".");
+                     }
+                     itemSlots = awardLoot(loot, itemNames, itemCounts, itemSlots);   // TODO 3b
+                 }
+                 playing = !over;
+            // ------------------------------------------------------------------
             playing = !endOfFight(fled, health, enemyHealth, enemyName, turnNumber);
             turnNumber++;
         }
 
-        // ---- TODO 5c · print the average --------------------------------------
-             System.out.printf("Average damage per turn: %.1f%n", average(damageLog, loggedTurns));
-        // ------------------------------------------------------------------------
-        System.out.printf("%nThe arena empties after %d turns.%n", turnNumber - 1);
+        System.out.printf("%nGold: %d%n", gold);
+        System.out.printf("Average damage per turn: %.1f%n", average(damageLog, loggedTurns));
+        System.out.printf("The arena empties after %d turns.%n", turnNumber - 1);
+        // TODO 4b · add:   verifyLootTable(rng, 1000);       (your own numbers, proving TODO 3)
     }
-}
 
-    // ================= arrays (new today) =================
+    // ================= loot (new today) =================
     //
-    // ---- TODO 2a · newArena: build the board ---------------------------------
-         static char[][] newArena() {
-             char[][] arena = new char[ROWS][COLS];
-             for (int r = 0; r < arena.length; r++) {              // arena.length    = rows
-                 for (int c = 0; c < arena[r].length; c++) {       // arena[r].length = columns
-                     boolean edge = (r == 0 || r == arena.length - 1
-                                  || c == 0 || c == arena[r].length - 1);
-                     arena[r][c] = edge ? '#' : ' ';
-                 }
-             }
-             return arena;
+    // SPEC: when an enemy dies, roll ONE item: 50% Potion, 30% Coin Pouch,
+    // 15% Shield, 5% Relic. Print what dropped. Add it to the pack if there is
+    // room; if the pack is full, print "Your pack is full!" and drop nothing.
+    //
+    // ---- TODO 3a · rollLoot ---------------------------------------------------
+         static String rollLoot(Random rng) {
+             int roll = rng.nextInt(100);        // 0..99
+             if (roll < 50) return "Potion";
+             if (roll < 80) return "Coin Pouch";
+             if (roll < 95) return "Shield";
+             return "Relic";
          }
+    //     Why 50 / 80 / 95 and not 50 / 30 / 15? Each `if` only sees the rolls
+    //     that failed the ones above it. 50-79 is thirty numbers: the 30%.
     //
-    // ---- TODO 4b · peek: what is in a cell, without stepping into it ---------
-         static char peek(char[][] arena, int row, int col) {
-             if (row < 0 || row >= arena.length) return '#';      // off the board = wall
-             if (col < 0 || col >= arena[row].length) return '#';
-             return arena[row][col];
+    // ---- TODO 3b · awardLoot: into the pack, stacking if it is already there --
+         static int awardLoot(String loot, String[] names, int[] counts, int slots) {
+             System.out.printf("The %s drops!%n", loot);
+             int existing = findItem(names, slots, loot);
+             if (existing >= 0) { counts[existing]++; return slots; }
+             if (slots >= names.length) { System.out.println("Your pack is full!"); return slots; }
+             names[slots] = loot;
+             counts[slots] = 1;
+             return slots + 1;
          }
-    //     That IS collision detection. Unit 3 does exactly this with sprites.
+    //     It RETURNS the new slot count, because a method cannot change main's
+    //     itemSlots -- it only gets a copy. Same lesson as Lesson 10.
     //
-    // ---- TODO 1c · printInventory and findItem -------------------------------
-         static void printInventory(String[] names, int[] counts, int slots) {
-             System.out.println("-- Pack --");
-             for (int i = 0; i < slots; i++) {                     // to slots, NOT names.length
-                 System.out.printf("  %d) %-10s x%d%n", i + 1, names[i], counts[i]);
-             }
-             System.out.println("");
+    // ---- TODO 4a · verifyLootTable: roll it 1000 times and print the percentages
+        static void verifyLootTable(Random rng, int rolls) {
+            int[] counts = new int[4];
+            for (int i = 0; i < rolls; i++) {
+                String loot = rollLoot(rng);
+                if (loot.equals("Potion"))          counts[0]++;
+                else if (loot.equals("Coin Pouch")) counts[1]++;
+                else if (loot.equals("Shield"))     counts[2]++;
+                else                                counts[3]++;
+            }
+            String[] labels = {"Potion", "Coin Pouch", "Shield", "Relic"};
+            System.out.printf("%n-- Loot table over %d rolls --%n", rolls);
+            for (int i = 0; i < labels.length; i++) {
+                System.out.printf("  %-11s %5.1f%%%n", labels[i], counts[i] * 100.0 / rolls);
+            }
         }
-    
-         static int findItem(String[] names, int slots, String wanted) {
-             for (int i = 0; i < slots; i++) {
-                 if (names[i].equals(wanted)) return i;
-             }
-             return -1;                                             // not in the pack
-         }
-    //     Loop to `slots`, not names.length: the tail of the array is still null,
-    //     and null.equals(...) throws.
-    //
-    // ---- TODO 5d · average -----------------------------------------------------
-         static double average(int[] log, int used) {
-             if (used == 0) return 0.0;
-             int total = 0;
-             for (int i = 0; i < used; i++) total += log[i];
-             return (double) total / used;                          // the L3 cast
-         }
-    //
-    // ---- TODO 6 · BREAK IT ON PURPOSE, then put it back ----------------------
-    //     itemNames[5] = "x";        -> ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5
-    //     itemNames[3].length();     -> NullPointerException (slot 3 was never assigned)
-    //     Read both messages out loud. The first one tells you the index AND the
-    //     length, which is the whole diagnosis.
-    // --------------------------------------------------------------------------
+    //     Expect something close to 50 / 30 / 15 / 5. Wildly off means the
+    //     thresholds in rollLoot are not cumulative.
+    // ---------------------------------------------------------------------------
+
+    // ================= arrays =================
+
+    private static int attack(boolean adjacent, int enemyPower, int roll, Random rng) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'attack'");
+    }
+
+    static char[][] newArena() {
+        char[][] arena = new char[ROWS][COLS];
+        // arena.length is the number of ROWS.
+        // arena[r].length is the number of COLUMNS in row r.
+        for (int r = 0; r < arena.length; r++) {
+            for (int c = 0; c < arena[r].length; c++) {
+                boolean edge = (r == 0 || r == arena.length - 1
+                             || c == 0 || c == arena[r].length - 1);
+                arena[r][c] = edge ? '#' : ' ';
+            }
+        }
+        return arena;
+    }
+
+    // A 2D array is an ARRAY OF ROWS, so the enhanced for hands you each row.
+    static void drawArena(char[][] arena) {
+        for (char[] row : arena) {
+            System.out.println(new String(row));
+        }
+        System.out.println("");
+    }
+
+    // Reading the cell you are about to enter IS collision detection. U3 does
+    // exactly this with sprites.
+    static char peek(char[][] arena, int row, int col) {
+        if (row < 0 || row >= arena.length) return '#';
+        if (col < 0 || col >= arena[row].length) return '#';
+        return arena[row][col];
+    }
+
+    static void printInventory(String[] names, int[] counts, int slots) {
+        System.out.println("-- Pack --");
+        for (int i = 0; i < slots; i++) {
+            System.out.printf("  %d) %-10s x%d%n", i + 1, names[i], counts[i]);
+        }
+        System.out.println("");
+    }
+
+    // Loops to `slots`, not to names.length — the tail of the array is still
+    // null, and calling anything on null throws.
+    static int findItem(String[] names, int slots, String wanted) {
+        for (int i = 0; i < slots; i++) {
+            if (names[i] != null && names[i].equals(wanted)) return i;
+        }
+        return -1;
+    }
+
+    static double average(int[] log, int used) {
+        if (used == 0) return 0.0;
+        int total = 0;
+        for (int i = 0; i < used; i++) {
+            total += log[i];
+        }
+        return (double) total / used;      // the L3 cast, still earning its keep
+    }
 
     // ================= output =================
 
@@ -238,7 +310,7 @@ public class Main {
     }
 
     static void openingCeremony(Scanner in, String name, int hp, String enemy, int enemyHp) {
-        printStatus(name, hp, MAX_HEALTH, STARTING_GOLD, 1);
+        System.out.printf("%-12s HP %3d/%3d%n", name, hp, MAX_HEALTH);
         System.out.printf("%s enters the arena. The %s has %d HP.%n", name, enemy, enemyHp);
         System.out.print("Press Enter to begin...");
         in.nextLine();
@@ -247,22 +319,9 @@ public class Main {
         System.out.println("");
     }
 
-    // TODO 3a · delete this method once main calls the three parts itself.
-    static void drawTurn(int turnNumber, String name, int hp, String enemy, int enemyHp,
-                         int playerRow, int playerCol, int enemyRow, int enemyCol) {
-        printBanner("Turn " + turnNumber);
-        printFighters(name, hp, enemy, enemyHp);
-        drawArena(playerRow, playerCol, enemyRow, enemyCol);
-    }
-
     static void printBanner(String text) {
         System.out.println("=".repeat(40));
         System.out.printf("  %s%n", text);
-    }
-
-    static void printStatus(String name, int hp, int maxHp, int gold, int level) {
-        System.out.printf("%-12s HP %3d/%3d  Gold %4d  Lv %d%n", name, hp, maxHp, gold, level);
-        System.out.println("");
     }
 
     static void printFighters(String name, int hp, String enemy, int enemyHp) {
@@ -276,36 +335,8 @@ public class Main {
     }
 
     static void countdown(int from) {
-        for (int i = from; i > 0; i--) {
-            System.out.println(i + "...");
-        }
+        for (int i = from; i > 0; i--) System.out.println(i + "...");
         System.out.println("FIGHT!");
-    }
-
-    // ---- TODO 3b · REPLACE this whole method ------------------------------------
-    // It DRAWS the board from positions. The new one PRINTS the stored board:
-    //
-         static void drawArena(char[][] arena) {
-             for (char[] row : arena) {               // a 2D array is an array of rows
-                 System.out.println(new String(row));
-             }
-             System.out.println("");
-         }
-    //
-    // Same name, different parameter. Keep ROWS and COLS -- newArena uses them.
-    // -----------------------------------------------------------------------------
-    static void drawArena(int playerRow, int playerCol, int enemyRow, int enemyCol) {
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c < COLS; c++) {
-                if (r == playerRow && c == playerCol)      System.out.print('@');
-                else if (r == enemyRow && c == enemyCol)   System.out.print('X');
-                else if (r == 0 || r == ROWS - 1)          System.out.print('-');
-                else if (c == 0 || c == COLS - 1)          System.out.print('|');
-                else                                       System.out.print(' ');
-            }
-            System.out.println();
-        }
-        System.out.println("");
     }
 
     // ================= input =================
@@ -340,7 +371,7 @@ public class Main {
         return in.nextLine().trim().toUpperCase();
     }
 
-    // ================= things that give a value back =================
+    // ================= values =================
 
     static String difficultyName(int difficulty) {
         return switch (difficulty) {
@@ -351,9 +382,7 @@ public class Main {
         };
     }
 
-    static boolean isAlive(int hp) {
-        return hp > 0;
-    }
+    static boolean isAlive(int hp) { return hp > 0; }
 
     static boolean isAdjacent(int r1, int c1, int r2, int c2) {
         return r1 == r2 && Math.abs(c1 - c2) == 1;
@@ -365,53 +394,31 @@ public class Main {
         return 0;
     }
 
-    static int calculateDamage(int power, int roll, double critMultiplier) {
-        if (roll >= 9) return (int) (power * critMultiplier);
-        if (roll >= 3) return power;
-        return 0;
-    }
+    static int applyDamage(int hp, int damage) { return hp - damage; }
 
-    static int applyDamage(int hp, int damage) {
-        return hp - damage;
-    }
+    // ---- TODO 1 · clamp is already ONE line. Read it inside-out: never above
+    // max, then never below min. Nothing to write. TEST it instead: press D at
+    // 98 HP (must stop at 100) and take a big hit (must stop at 0). If either
+    // fails, find the path that skips enemyResponse, which is where clamp runs.
+    // ----------------------------------------------------------------------
+    static int clamp(int value, int min, int max) { return Math.max(min, Math.min(max, value)); }
 
-    static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
+    // ---- TODO 5a · variance: add `Random rng` as a fourth parameter, then after
+    // the damage line:
+    //     if (damage > 0) damage = Math.max(0, damage + rng.nextInt(-2, 3));   // -2..+2
+    // Why Math.max(0, ...)? Negative damage would HEAL the enemy. Ask that
+    // question before it happens, not after.
+    // ----------------------------------------------------------------------
     static int attack(boolean adjacent, int enemyPower, int roll) {
         if (!adjacent) {
             System.out.println("You swing at empty air. Get closer first.");
             return 0;
         }
         int damage = calculateDamage(enemyPower, roll);
-        if (damage == 0)                   System.out.println("You miss.");
-        else if (damage > enemyPower)      System.out.println("CRITICAL HIT!");
-        else                               System.out.println("A solid hit.");
+        if (damage == 0)              System.out.println("You miss.");
+        else if (damage > enemyPower) System.out.println("CRITICAL HIT!");
+        else                          System.out.println("A solid hit.");
         return damage;
-    }
-
-    // TODO 4a · delete moveLeft and moveRight once the "L", "R" case uses the board.
-    static int moveLeft(int playerCol) {
-        if (playerCol - 1 < 1) {
-            System.out.println("The wall stops you.");
-            return playerCol;
-        }
-        System.out.println("You step left.");
-        return playerCol - 1;
-    }
-
-    static int moveRight(int playerCol, int enemyCol, String enemyName) {
-        if (playerCol + 1 > COLS - 2) {
-            System.out.println("The wall stops you.");
-            return playerCol;
-        }
-        if (playerCol + 1 == enemyCol) {
-            System.out.println("The " + enemyName + " blocks your way.");
-            return playerCol;
-        }
-        System.out.println("You step right.");
-        return playerCol + 1;
     }
 
     static int defend(int health) {
@@ -437,7 +444,6 @@ public class Main {
         }
         return clamp(health, 0, MAX_HEALTH);
     }
-    
 
     static boolean endOfFight(boolean fled, int health, int enemyHealth,
                               String enemyName, int turnNumber) {
